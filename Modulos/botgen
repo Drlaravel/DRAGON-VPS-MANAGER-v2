@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Function to activate the Telegram bot
+activate_bot() {
+    clear
+    echo -e "\E[44;1;37m     ㅤ🐉ㅤDRAGON VPS MANAGER TELE BOT ACTIVATIONㅤ🐉ㅤ     \E[0m"
+    echo ""
+    echo -ne "\033[1;32m◇ INFORM YOUR BOT TOKEN FROM @BotFather\033[1;37m: "; read -r token
+    echo ""
+    echo -ne "\033[1;32m◇ INFORM YOUR TELEGRAM ID\033[1;37m: "; read -r idtelegram
+    cd /etc/VPSManager
+    screen -dmS bot_gen ./botgerador "$token" "$idtelegram" > /dev/null 2>&1
+
+    # Update /etc/autostart file
+    if ! grep -q "bot_gen" /etc/autostart; then
+        echo -e "ps x | grep 'bot_gen' | grep -v 'grep' || cd /etc/VPSManager && sudo screen -dmS bot_gen ./botgerador $token $idtelegram && cd $HOME" >> /etc/autostart
+    else
+        sed -i '/bot_gen/d' /etc/autostart
+        echo -e "ps x | grep 'bot_gen' | grep -v 'grep' || cd /etc/VPSManager && sudo screen -dmS bot_gen ./botgerador $token $idtelegram && cd $HOME" >> /etc/autostart
+    fi
+
+    clear && echo "◇ BOT ACTIVATED!"
+}
+
+# Function to disable the Telegram bot
+disable_bot() {
+    screen -r -S "bot_gen" -X quit
+    clear && echo "◇ BOT DISABLED!"
+}
+
+# Check if the bot is active and perform the appropriate action
+if [[ $(screen -list | grep -c 'bot_gen') -eq 0 ]]; then
+    activate_bot
+else
+    disable_bot
+fi

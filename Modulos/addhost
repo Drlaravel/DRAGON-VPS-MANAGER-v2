@@ -1,0 +1,49 @@
+#!/bin/bash
+
+payload=""
+if [ -d "/etc/squid/" ]; then
+    payload="/etc/squid/payload.txt"
+elif [ -d "/etc/squid3/" ]; then
+    payload="/etc/squid3/payload.txt"
+fi
+
+if [ ! -f "$payload" ]; then
+    echo "File $payload not found"
+    exit 1
+else
+    echo "Current domains in file $payload:"
+    cat "$payload"
+    echo ""
+
+    read -p "Enter the domain you want to add to the list: " host
+
+    if [[ -z $host ]]; then
+        echo "You have entered an empty or non-existent domain!"
+        exit 1
+    elif grep -q "^$host" "$payload"; then
+        echo "The domain $host already exists in the file $payload"
+        exit 1
+    elif [[ $host != \.* ]]; then
+        echo "You must add a domain by starting it with a dot!"
+        echo "For example: .phreaker56.xyz"
+        echo "It is not necessary to add subdomains for domains that are already in the file."
+        echo "In other words, it is not necessary to add recargawap.claro.com.br if the domain .claro.com.br is already in the file."
+        exit 1
+    else
+        echo "$host" >> "$payload" && grep -v "^$" "$payload" > /tmp/a && mv /tmp/a "$payload"
+
+        if [ ! -f "/etc/init.d/squid3" ]; then
+            service squid3 reload
+        elif [ ! -f "/etc/init.d/squid" ]; then
+            service squid reload
+        fi
+
+        echo "File $payload updated, the domain was successfully added."
+        echo "Updated domains in file $payload:"
+        cat "$payload"
+        echo ""
+        echo "Proxy, Squid Proxy reloaded successfully!"
+        exit 0
+    fi
+fi
+

@@ -1,0 +1,91 @@
+#!/bin/bash
+
+clear
+
+fun_bar () {
+  comando=("$1" "$2")
+  {
+    [[ -e "$HOME/fim" ]] && rm "$HOME/fim"
+    "${comando[0]}" > /dev/null 2>&1
+    "${comando[1]}" > /dev/null 2>&1
+    touch "$HOME/fim"
+  } > /dev/null 2>&1 &
+
+  tput civis
+  echo -ne "   \033[1;33mPLEASE WAIT ... \033[1;37m- \033[1;33m["
+
+  while true; do
+    for ((i=0; i<18; i++)); do
+      echo -ne "\033[1;31m#"
+      sleep 0.1s
+    done
+
+    [[ -e "$HOME/fim" ]] && rm "$HOME/fim" && break
+
+    echo -e "\033[1;33m]"
+    sleep 1s
+    tput cuu1
+    tput dl1
+    echo -ne "   \033[1;33mPLEASE WAIT ... \033[1;37m- \033[1;33m["
+  done
+
+  echo -e "\033[1;33m]\033[1;37m -\033[1;32m OK !\033[1;37m"
+  tput cnorm
+}
+
+echo " "
+echo -e "ㅤ🐉ㅤDRAGON VPS MANAGERㅤ🐉ㅤ" | figlet
+echo " "
+
+fun_atts () {
+  [[ -e "$HOME/versao" ]] && rm "$HOME/versao"
+  [[ -e "/tmp/att" ]] && rm "/tmp/att"
+  wget -c -P "$HOME" https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/Sistema/versao
+  [[ -f "$HOME/versao" ]] && mv "$HOME/versao" "/tmp/att"
+  [[ ! -e "/bin/versao" ]] && rm -rf "/bin/menu"
+} > /dev/null 2>&1
+
+echo -e "   \033[1;32m◇ CHECKING FOR AVAILABLE UPDATES\033[0m\n"
+fun_bar 'fun_atts'
+
+if [[ ! -f "/tmp/att" ]]; then
+  echo -e "\n\033[1;31m◇ ERROR CONNECTING TO SERVER\n"
+  echo -ne "\033[1;31m◇ ENTER \033[1;33mto return to \033[1;32mMENU!\033[0m"; read
+  menu
+fi
+
+echo " "
+vrs1=$(sed -n '1 p' "/bin/versao" | sed -e 's/[^0-9]//ig')
+vrs2=$(sed -n '1 p' "/tmp/att" | sed -e 's/[^0-9]//ig')
+
+if [[ "$vrs1" == "$vrs2" ]]; then
+  echo -e " \033[1;36m   ◇ THE SCRIPT IS NOW UPDATED!\033[1;32m\n"
+  rm "/tmp/att" > /dev/null 2>&1
+  echo -ne " \033[1;31m◇ ENTER \033[1;33mto return to \033[1;32mMENU!\033[0m"; read
+  menu
+else
+  echo -e "  \033[1;36m◇ THERE IS A NEW UPDATE AVAILABLE!\033[1;33m\n"
+  echo -e "  \033[1;32m◇ UPDATE DETAILS:\033[0m\n"
+
+  while read -r linha; do
+    echo -e "  \033[1;37m- \033[1;33m$linha"
+  done < "/tmp/att"
+
+  echo " "
+  echo -ne "  \033[1;32m◇ WISH TO UPDATE \033[1;31m? \033[1;33m[s/n]:\033[1;37m "; read -r res
+
+  if [[ "$res" = s || "$res" = S ]]; then
+    echo -e "\n\033[1;32m◇ STARTING UPDATE..."
+    sleep 3
+    wget "https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/hehe" -qO /tmp/hehe
+    chmod +x /tmp/hehe
+    /tmp/hehe
+    clear
+    echo -e "\033[1;32m◇ SUCCESSFULLY UPDATED SCRIPT\033[0m\n"
+    rm "/tmp/att" > /dev/null 2>&1
+    echo -ne "\033[1;31m◇ ENTER \033[1;33mto return to \033[1;32mMENU!\033[0m"; read
+    menu
+  else
+    menu
+  fi
+fi

@@ -1,0 +1,81 @@
+#!/bin/bash
+
+get_os_info() {
+    if [ -f /etc/lsb-release ]; then
+        name=$(awk -F '=' '/DESCRIPTION/ {print $2}' /etc/lsb-release)
+        codename=$(awk -F '=' '/CODENAME/ {print $2}' /etc/lsb-release)
+        echo -e "\033[1;33mVersion: \033[1;37m$name"
+        echo -e "\033[1;33mCodeName: \033[1;37m$codename"
+    elif [ -f /etc/issue.net ]; then
+        system=$(cat /etc/issue.net)
+        echo -e "\033[1;33mVersion: \033[1;37m$system"
+    fi
+
+    if [ -f /etc/os-release ]; then
+        devlike=$(awk -F '=' '/LIKE/ {print $2}' /etc/os-release)
+        echo -e "\033[1;33mDerived from OS: \033[1;37m$devlike"
+    fi
+
+    echo -e "\033[1;33mKernel: \033[1;37m$(uname -s)"
+    echo -e "\033[1;33mKernel Release: \033[1;37m$(uname -r)"
+}
+
+get_processor_info() {
+    if [ -f /proc/cpuinfo ]; then
+        uso=$(top -bn1 | awk '/Cpu/ { cpu = "" 100 - $8 "%" }; END { print cpu }')
+        modelo=$(awk -F ': ' '/model name/ {print $2; exit}' /proc/cpuinfo)
+        cpucores=$(grep -c 'cpu[0-9]' /proc/stat)
+        cache=$(awk -F ': ' '/cache size/ {print $2; exit}' /proc/cpuinfo)
+        echo -e "\033[1;33mModel:\033[1;37m$modelo"
+        echo -e "\033[1;33mCPU cores:\033[1;37m $cpucores"
+        echo -e "\033[1;33mCache memory:\033[1;37m$cache"
+        echo -e "\033[1;33mArchitecture: \033[1;37m$(uname -p)"
+        echo -e "\033[1;33musage: \033[37m$uso"
+    else
+        echo "Unable to get processor information"
+    fi
+}
+
+get_ram_info() {
+    if free 1>/dev/null 2>/dev/null; then
+        ram1=$(free -h | awk '/Mem:/ {print $2}')
+        ram2=$(free -h | awk '/Mem:/ {print $4}')
+        ram3=$(free -h | awk '/Mem:/ {print $3}')
+        usoram=$(free -m | awk '/Mem:/ {printf "%.2f%%\t\t", $3*100/$2}')
+
+        echo -e "\033[1;33mTotal RAM: \033[1;37m$ram1"
+        echo -e "\033[1;33mIn Use RAM: \033[1;37m$ram3"
+        echo -e "\033[1;33mFree RAM: \033[1;37m$ram2"
+        echo -e "\033[1;33mUsage: \033[37m$usoram"
+    else
+        echo "Unable to get RAM information"
+    fi
+}
+
+get_services_info() {
+    echo -e "\033[1;33mServices in Performance\033[1;31m •\033[0m"
+    echo ""
+
+    PT=$(lsof -V -i tcp -P -n | grep -v "ESTABLISHED" | grep -v "COMMAND" | grep "LISTEN")
+
+    while read -r line; do
+        porta=$(echo "$line" | cut -d: -f2 | awk '{print $1}')
+        svcs=$(echo "$line" | awk '{print $1}' | uniq)
+        echo -e "\033[1;33mService \033[1;37m$svcs \033[1;33mPort \033[1;37m$porta"
+    done <<< "$PT"
+}
+
+clear
+echo -e "\E[44;1;37m               🐉ㅤℹㅤVPS INFORMATIONㅤℹㅤ🐉                 \E[0m"
+echo ""
+
+get_os_info
+echo ""
+
+get_processor_info
+echo ""
+
+get_ram_info
+echo ""
+
+get_services_info

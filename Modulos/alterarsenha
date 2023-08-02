@@ -1,0 +1,60 @@
+#!/bin/bash
+
+tput setaf 7 ; tput setab 4 ; tput bold ; printf '%35s%s%-10s\n' "🐉ㅤChange User Passwordㅤ🐉" ; tput sgr0
+
+echo ""
+echo -e "\033[1;33mLIST OF USERS AND THEIR PASSWORDS: \033[0m"
+echo ""
+
+_userT=$(awk -F: '$3>=1000 {print $1}' /etc/passwd | grep -v nobody)
+i=0
+unset _userPass
+
+while read -r _user; do
+	i=$((i + 1))
+	_oP=$i
+	[[ $i -lt 10 ]] && _oP="0$i"
+
+	_senha='Null'
+	if [[ -e "/etc/VPSManager/senha/$_user" ]]; then
+		_senha=$(cat "/etc/VPSManager/senha/$_user")
+	fi
+
+	suser=$(echo -e "\033[1;31m[\033[1;36m$_oP\033[1;31m] \033[1;37m- \033[1;32m$_user\033[0m")
+	ssenha=$(echo -e "\033[1;33mPassword\033[1;37m: $_senha")
+	printf '%-60s%s\n' "$suser" "$ssenha"
+	_userPass+="${_oP}:${_user}\n"
+done <<< "$_userT"
+
+num_user=$(awk -F: '$3>=1000 {print $1}' /etc/passwd | grep -v nobody | wc -l)
+
+echo ""
+echo -ne "\033[1;32mEnter or select a user \033[1;33m[\033[1;36m1\033[1;31m-\033[1;36m$num_user\033[1;33m]\033[1;37m: "
+read option
+
+user=$(echo -e "${_userPass}" | grep -E "\b$option\b" | cut -d: -f2)
+
+if [[ -z $option || -z $user ]]; then
+	tput setaf 7 ; tput setab 1 ; tput bold ; echo "" ; echo "Empty or invalid field!" ; echo "" ; tput sgr0
+	exit 1
+fi
+
+if ! grep -q "/$user:" /etc/passwd; then
+	tput setaf 7 ; tput setab 4 ; tput bold ; echo "" ; echo "The user $user does not exist!" ; echo "" ; tput sgr0
+	exit 1
+fi
+
+echo -ne "\n\033[1;32mNew password for user \033[1;33m$user\033[1;37m: "
+read -r password
+
+sizepass=${#password}
+if [[ $sizepass -lt 4 ]]; then
+	tput setaf 7 ; tput setab 1 ; tput bold ; echo "" ; echo "Empty or invalid password! Use at least 4 characters" ; echo "" ; tput sgr0
+	exit 1
+fi
+
+pkill -fu "$user"
+
+echo "$user:$password" | chpasswd
+tput setaf 7 ; tput setab 1 ; tput bold ; echo "" ; echo "User password $user has been changed to: $password" ; echo "" ; tput sgr0
+echo "$password" > "/etc/VPSManager/senha/$user"

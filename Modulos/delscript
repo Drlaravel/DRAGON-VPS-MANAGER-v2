@@ -1,0 +1,30 @@
+#!/bin/bash
+
+uninstall_vps_manager() {
+    apt_packages=("screen" "nmap" "figlet" "squid" "squid3" "dropbear" "apache2")
+
+    for package in "${apt_packages[@]}"; do
+        apt-get purge "$package" -y > /dev/null 2>&1
+    done
+
+    rm -f /bin/{criarusuario,expcleaner,sshlimiter,addhost,listar,sshmonitor,ajuda,menu,OpenVPN,userbackup,tcpspeed,badvpn,otimizar,speedtest,trafego,banner,limit,limite,senharoot,reiniciarservicos,reiniciarsistema,attscript,criarteste,socks,DropBear,alterarlimite,alterarsenha,remover,detalhes,mudardata,botssh,infousers,droplimiter,conexao,versao}
+
+    rm -rf /etc/VPSManager
+
+    clear
+    echo -e "\033[1;36mThank you for usingㅤ🐉ㅤDRAGON VPS MANAGERㅤ🐉\033[1;33m"
+    sleep 2
+    cat /dev/null > ~/.bash_history && history -c && exit 0
+}
+
+clear
+echo -e "\033[1;32mWANT TO UNINSTALLㅤ🐉ㅤDRAGON VPS MANAGERㅤ🐉ㅤ\033[1;33m"
+read -p "Want to remove? [s/n] " resp
+
+if [[ "$resp" =~ ^[sS]$ ]]; then
+    uninstall_vps_manager
+else
+    echo -e "\033[1;32CTRL+C to get out\033[1;33m"
+    sleep 3
+    menu
+fi

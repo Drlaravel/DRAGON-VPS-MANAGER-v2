@@ -1,0 +1,107 @@
+#!/bin/bash
+
+IP=$(cat /etc/IP)
+USERS_DIR="/etc/VPSManager/userteste"
+SSH_PORT_BASE=20000  # Set the base port number for SSH (e.g., 20000)
+SSH_PORT_STEP=100    # Set the step size for each new user (e.g., 100)
+
+if [ ! -d "$USERS_DIR" ]; then
+    mkdir "$USERS_DIR"
+fi
+
+tput setaf 7 ; tput setab 4 ; tput bold ; printf '%30s%s%-15s\n' "Create test user" ; tput sgr0
+
+echo ""
+if [ "$(ls -A "$USERS_DIR")" ]; then
+    echo -e "\033[1;32mActive Test User!\033[1;37m"
+else
+    echo -e "\033[1;31mNo active tests!\033[0m"
+fi
+echo ""
+
+read -p "Username: " nome
+read -p "Password: " pass
+read -p "Limit: " limit
+read -p "Expiration Time (minutes): " u_temp
+
+if [[ -z $nome || -z $pass || -z $limit || -z $u_temp ]]; then
+    echo ""
+    tput setaf 7 ; tput setab 1 ; tput bold ; echo "" ; echo "Empty or invalid input." ; echo "" ; tput sgr0
+    exit 1
+fi
+
+if grep -Fxq "$nome" /etc/passwd; then
+    tput setaf 7 ; tput setab 1 ; tput bold ; echo "" ; echo "This user already exists." ; echo "" ; tput sgr0
+    exit 1
+fi
+
+useradd -M -s /bin/false "$nome"
+(echo "$pass"; echo "$pass") | passwd "$nome" > /dev/null 2>&1
+echo "$pass" > "/etc/VPSManager/senha/$nome"
+echo "$nome $limit" >> /root/usuarios.db
+
+expiration_script="/etc/VPSManager/userteste/$nome.sh"
+cat > "$expiration_script" << EOF
+#!/bin/bash
+pkill -f "$nome"
+userdel --force "$nome"
+grep -v ^$nome[[:space:]] /root/usuarios.db > /tmp/ph ; cat /tmp/ph > /root/usuarios.db
+rm "/etc/VPSManager/senha/$nome" > /dev/null 2>&1
+rm -rf "$expiration_script"
+exit
+EOF
+
+chmod +x "$expiration_script"
+at -f "$expiration_script" now + $u_temp min > /dev/null 2>&1
+
+ssh_port=$((SSH_PORT_BASE + (SSH_PORT_STEP * $(id -u "$nome") % 1000)))
+squid_port=$((ssh_port + 1))
+dropbear_port=$((ssh_port + 20))
+ssl_port=$((ssh_port + 300))
+badvpn_port=$((ssh_port + 1000))
+
+clear
+cat << EOF
+====================================
+   🐉ㅤDRAGON VPS MANAGERㅤ🐉  
+====================================
+
+◈─────⪧ IMPORTANT ⪦──────◈
+
+◈⪧ 🚫 NO SPAM
+◈⪧ ⚠️ NO DDOS
+◈⪧ 🎭 NO Hacking
+◈⪧ ⛔️ NO Carding
+◈⪧ 🙅‍♂️ NO Torrent
+◈⪧ ❌ NO MultiLogin
+◈⪧ 🤷‍♂️ NO Illegal Activities
+
+◈─────⪧ TEST SSH ACCOUNT ⪦─────◈
+
+◈ Host / IP   :⪧  $IP
+◈ Username    :⪧  $nome
+◈ Password    :⪧  $pass
+◈ Login Limit :⪧  $limit
+◈ Expire Time :⪧  $u_temp minutes
+
+◈───⪧ PORTS ⪦ ───────◈
+
+◈ SSH       ⌁   $ssh_port
+◈ SSL       ⌁   $ssl_port
+◈ Squid     ⌁   $squid_port
+◈ DropBear  ⌁   $dropbear_port
+◈ BadVPN    ⌁   $badvpn_port
+
+◈───⪧ ONLINE USER COUNT ⪦ ─────◈
+
+◈ http://$IP:8888/server/online
+
+◈─────────────────────────────────◈
+
+©️ 🐉  DRAGON VPS MANAGER SCRIPT  🐉
+◈─────────────────────────────────◈
+
+After the defined time, the user $nome will be disconnected and deleted.
+EOF
+
+exit

@@ -1,0 +1,46 @@
+#!/bin/bash
+
+squid_payload="/etc/squid/payload.txt"
+squid3_payload="/etc/squid3/payload.txt"
+squid_service="/etc/init.d/squid"
+squid3_service="/etc/init.d/squid3"
+
+tput setaf 7 ; tput setab 4 ; tput bold ; printf '%35s%s%-10s\n' "ㅤ🐉ㅤRemove Host from Squid Proxyㅤ🐉ㅤ" ; tput sgr0
+
+if [ -f "$squid_payload" ]; then
+    payload="$squid_payload"
+elif [ -f "$squid3_payload" ]; then
+    payload="$squid3_payload"
+else
+    tput setaf 7 ; tput setab 4 ; tput bold ; echo "" ; echo "Payload file not found" ; tput sgr0
+    exit 1
+fi
+
+tput setaf 2 ; tput bold ; echo ""; echo "Current domains in file $payload:" ; tput sgr0
+tput setaf 3 ; tput bold ; echo "" ; cat "$payload" ; echo "" ; tput sgr0
+
+read -p "Enter the domain you want to remove from the list: " host
+
+if [[ -z "$host" ]]; then
+    tput setaf 7 ; tput setab 4 ; tput bold ; echo "" ; echo "You have entered an empty or non-existent domain!" ; echo "" ; tput sgr0
+    exit 1
+fi
+
+if ! grep -q "^$host" "$payload"; then
+    tput setaf 7 ; tput setab 4 ; tput bold ; echo "" ; echo "The domain $host not found in the file $payload" ; echo "" ; tput sgr0
+    exit 1
+fi
+
+grep -v "^$host" "$payload" > /tmp/a && mv /tmp/a "$payload"
+
+if [ -f "$squid_service" ]; then
+    service squid reload
+elif [ -f "$squid3_service" ]; then
+    service squid3 reload
+fi
+
+tput setaf 7 ; tput setab 1 ; tput bold ; echo "" ; echo "File $payload updated, the domain was removed successfully:" ; tput sgr0
+tput setaf 3 ; tput bold ; echo "" ; cat "$payload" ; echo "" ; tput sgr0
+tput setaf 7 ; tput setab 1 ; tput bold ; echo "" ; echo "Proxy Squid Proxy reloaded successfully!" ; echo "" ; tput sgr0
+
+exit 0
