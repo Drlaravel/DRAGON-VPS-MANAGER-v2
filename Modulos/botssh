@@ -41,10 +41,10 @@ fun_botOnOff() {
         echo -e "\033[1;32mㅤ🐉ㅤDRAGON VPS MANAGERㅤTELE BOT STARTING...ㅤ🐉ㅤ\033[0m\n"
         fun_bot1() {
         	[[ "$(grep -wc '16' /etc/issue.net)" != '0' ]] && {
-        		wget -qO- https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/Install/ShellBot.sh > /etc/VPSManager/ShellBot.sh
+        		wget -qO- https://raw.githubusercontent.com/Drlaravel/DRAGON-VPS-MANAGER-v2/main/Install/ShellBot.sh > /etc/VPSManager/ShellBot.sh
         	}
             [[ ! -e "/etc/VPSManager/ShellBot.sh" ]] && {
-				wget -qO- https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/Install/ShellBot.sh >/etc/VPSManager/ShellBot.sh
+				wget -qO- https://raw.githubusercontent.com/Drlaravel/DRAGON-VPS-MANAGER-v2/main/Install/ShellBot.sh >/etc/VPSManager/ShellBot.sh
 			}
             cd /etc/VPSManager
             screen -dmS bot_plus ./bot $tokenbot $iduser >/dev/null 2>&1

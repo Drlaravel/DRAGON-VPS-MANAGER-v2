@@ -40,7 +40,7 @@ echo " "
 fun_atts () {
   [[ -e "$HOME/versao" ]] && rm "$HOME/versao"
   [[ -e "/tmp/att" ]] && rm "/tmp/att"
-  wget -c -P "$HOME" https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/Sistema/versao
+  wget -c -P "$HOME" https://raw.githubusercontent.com/Drlaravel/DRAGON-VPS-MANAGER-v2/main/Sistema/versao
   [[ -f "$HOME/versao" ]] && mv "$HOME/versao" "/tmp/att"
   [[ ! -e "/bin/versao" ]] && rm -rf "/bin/menu"
 } > /dev/null 2>&1
@@ -77,7 +77,7 @@ else
   if [[ "$res" = s || "$res" = S ]]; then
     echo -e "\n\033[1;32m◇ STARTING UPDATE..."
     sleep 3
-    wget "https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/hehe" -qO /tmp/hehe
+    wget "https://raw.githubusercontent.com/Drlaravel/DRAGON-VPS-MANAGER-v2/main/hehe" -qO /tmp/hehe
     chmod +x /tmp/hehe
     /tmp/hehe
     clear

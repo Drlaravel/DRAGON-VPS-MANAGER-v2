@@ -1,6 +1,6 @@
 #!/bin/bash
 
-_lvk=$(wget -qO- https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/Sistema/versao)
+_lvk=$(wget -qO- https://raw.githubusercontent.com/Drlaravel/DRAGON-VPS-MANAGER-v2/main/Sistema/versao)
 IP=$(wget -qO- ipv4.icanhazip.com)
 IP2=$(wget -qO- http://whatismyip.akamai.com/)
 [[ "$IP" != "$IP2" ]] && ipdovps="$IP2" || ipdovps="$IP"
@@ -37,12 +37,12 @@ _mdls=("addhost" "delhost" "alterarsenha" "criarusuario" "expcleaner" "mudardata
 _mdls2=("onlineapp.sh")
 for _arq in ${_mdls[@]}; do
 	[[ -e $_dir1/$_arq ]] && rm $_dir1/$_arq >/dev/null 2>&1
-	wget -c -P $_dir1 https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/Modulos/$_arq
+	wget -c -P $_dir1 https://raw.githubusercontent.com/Drlaravel/DRAGON-VPS-MANAGER-v2/main/Modulos/$_arq
 	chmod +x $_dir1/$_arq
 done
 for _arq in ${_mdls2[@]}; do
 	[[ -e $_dir3/$_arq ]] && rm $_dir3/$_arq >/dev/null 2>&1
-	wget -c -P $_dir3 https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/Modulos/$_arq
+	wget -c -P $_dir3 https://raw.githubusercontent.com/Drlaravel/DRAGON-VPS-MANAGER-v2/main/Modulos/$_arq
 	chmod +x $_dir3/$_arq
 done
 cd /var/www/html && mkdir server
@@ -67,7 +67,7 @@ clear
 #AUTOMATIC START' >/etc/autostart
 	chmod +x /etc/autostart
 } || {
-	[[ $(ps x | grep "bot_plus" | grep -v grep | wc -l) != '0' ]] && wget -qO- https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/Install/ShellBot.sh
+	[[ $(ps x | grep "bot_plus" | grep -v grep | wc -l) != '0' ]] && wget -qO- https://raw.githubusercontent.com/Drlaravel/DRAGON-VPS-MANAGER-v2/main/Install/ShellBot.sh
 	for proc in $(ps x | grep 'dmS' | grep -v 'grep' | awk {'print $1'}); do
 		screen -r -S "$proc" -X quit	
 done
@@ -78,7 +78,7 @@ clear
 #AUTOMATIC START' >/etc/autostart
 	chmod +x /etc/autostart
 } || {
-	[[ $(ps x | grep "bot_teste" | grep -v grep | wc -l) != '0' ]] && wget -qO- https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/Install/ShellBot.sh
+	[[ $(ps x | grep "bot_teste" | grep -v grep | wc -l) != '0' ]] && wget -qO- https://raw.githubusercontent.com/Drlaravel/DRAGON-VPS-MANAGER-v2/main/Install/ShellBot.sh
 	for proc in $(ps x | grep 'dmS' | grep -v 'grep' | awk {'print $1'}); do
 		screen -r -S "$proc" -X quit	
 done
@@ -89,7 +89,7 @@ clear
 #AUTOMATIC START' >/etc/autostart
 	chmod +x /etc/autostart
 } || {
-	[[ $(ps x | grep "bot_gen" | grep -v grep | wc -l) != '0' ]] && wget -qO- https://raw.githubusercontent.com/januda-ui/DRAGON-VPS-MANAGER/main/Install/ShellBot.sh
+	[[ $(ps x | grep "bot_gen" | grep -v grep | wc -l) != '0' ]] && wget -qO- https://raw.githubusercontent.com/Drlaravel/DRAGON-VPS-MANAGER-v2/main/Install/ShellBot.sh
 	for proc in $(ps x | grep 'dmS' | grep -v 'grep' | awk {'print $1'}); do
 		screen -r -S "$proc" -X quit	
 done
